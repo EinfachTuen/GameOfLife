@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>title</title>
+</head>
+<body>
+<canvas id="gameBoard" width="800px" height="800px" style="margin: auto; display: block; padding: 0;"></canvas>
+<script>
+    var GameBoardSize = {width: 800, height:800};
+    var GAmountOfCells = {x: 100, y:100};
+    var YSizePerCell = GameBoardSize.height / GAmountOfCells.y;
+    var XSizePerCell = GameBoardSize.width / GAmountOfCells.x;
+
+    var LivingCells = [];
+    var StartCells = [{x:10, y:10},{x:20,y:20}];
+    LivingCells = LivingCells.concat(StartCells);
+    var ClickedCells = {};
+    var Canvas = document.getElementById('gameBoard');
+    var Context = Canvas.getContext('2d');
+    Canvas.addEventListener("click", getClickPosition, false);
+
+    setCanvasSize();
+    paintLivingCells();
+    function setCanvasSize(){
+        Canvas.width = GameBoardSize.width;
+        Canvas.height = GameBoardSize.height;
+        paintCellRaster();
+    }
+    function paintCellRaster(){
+        var cellcount = 0;
+        for(var y =0; y < GAmountOfCells.y; y++){
+            for(var x =0; x < GAmountOfCells.x; x++){
+                Context.beginPath();
+                Context.rect(x*XSizePerCell, y*YSizePerCell, XSizePerCell, YSizePerCell);
+                Context.lineWidth = 1;
+                Context.strokeStyle = 'black';
+                Context.stroke();
+                cellcount ++;
+            }
+        }
+        console.log("Loop Check:", cellcount+" fields painted");
+    }
+    function paintLivingCells(){
+        LivingCells.forEach(function (cell){
+            console.log("Painted Cell X,Y", cell.x*XSizePerCell+","+ cell.y*YSizePerCell);
+            Context.beginPath();
+            Context.rect(cell.x*XSizePerCell, cell.y*YSizePerCell, XSizePerCell, YSizePerCell);
+            Context.fillStyle = 'blue';
+            Context.fill();
+            Context.stroke();
+        });
+    }
+    function getClickPosition(e) {
+        var rect = Canvas.getBoundingClientRect();
+        var clickedAtPos = {x:e.offsetX, y: e.offsetY}
+        var newCell = {
+            x: Math.floor(clickedAtPos.x / XSizePerCell),
+            y: Math.floor(clickedAtPos.y / YSizePerCell)
+        }
+        console.log(newCell)
+        ClickedCells[JSON.stringify(newCell)] = newCell; //used this strange layout to avoid double elements in array and to avoid to waste process time for array iterations
+        console.log(ClickedCells);
+       // paintAddedCells();
+    };
+    function paintAddedCells(){
+        Object.keys(ClickedCells).forEach(function (key){
+            console.log("Painted Cell X,Y", ClickedCells[key].x*XSizePerCell+","+ ClickedCells[key].y*YSizePerCell);
+            Context.beginPath();
+            Context.rect(ClickedCells[key].x*XSizePerCell, ClickedCells[key].y*YSizePerCell, XSizePerCell, YSizePerCell);
+            Context.fillStyle = 'blue';
+            Context.fill();
+            Context.stroke();
+            LivingCells.push(ClickedCells[key]);
+            console.log("added");
+        });
+        ClickedCells = [];
+    }
+</script>
+</body>
+</html>
